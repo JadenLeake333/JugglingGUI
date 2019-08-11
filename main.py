@@ -87,20 +87,22 @@ class Ui_MainWindow(object):
         if text not in updating_list:
             self.catalog.addItem(text)
             self.write_to_txt(text)
+            updating_list.append(text.replace('\n',""))
 
     def remove_from_catalog(self):
         value = self.catalog.selectedItems()
         #if not value: return
         for item in value:
             self.catalog.takeItem(self.catalog.row(item))
-            
+        for items in value:
+            updating_list.remove(items.text().replace('\n',''))
+            print(updating_list)
         with open('catalog.txt','w+') as stored:
             for x in range(self.catalog.count()):
                 word = self.catalog.item(x)
-                text = (str(word.text())) 
-                print(text) 
-                updating_list.remove(text)  
-                    
+                text = (str(word.text()))
+                self.write_to_txt(text)    
+                  
     def loadCatalog(self):
         with open('catalog.txt','r') as stored:
             self.catalog.addItems(stored)
@@ -114,14 +116,10 @@ class Ui_MainWindow(object):
 
     def write_to_txt(self,text):
         with open('catalog.txt','a+') as files:
-            files.writelines(text)
-            updating_list.append(text.replace('\n',""))
-            print(updating_list)
-    
-    #def remove_from_txt(self,text):
-
+            files.writelines('%s\n'%text)
             
             
+ 
     def go_to_webpage(self):
         value = self.catalog.currentItem()
         try:
