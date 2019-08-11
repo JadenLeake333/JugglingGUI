@@ -8,6 +8,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMessageBox
 from bs4 import BeautifulSoup
 import webbrowser
 import requests
@@ -72,6 +73,7 @@ class Ui_MainWindow(object):
 
         self.addTo.clicked.connect(self.add_to_catalog)
         self.removefrom.clicked.connect(self.remove_from_catalog)
+        self.goTo.clicked.connect(self.go_to_webpage)
          
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -89,20 +91,39 @@ class Ui_MainWindow(object):
 
     def add_to_catalog(self,item):
         value = self.trickList.currentItem()
-        text = value.text()
+        try:
+            text = value.text()
+        except AttributeError:
+            print('Please select an item to add to the catalog!')
+            return
         self.catalog.addItem(text)
         with open("catalog.txt","a+") as stored:
             stored.writelines('%s\n'%text)
 
     def remove_from_catalog(self):
         value = self.catalog.selectedItems()
-        if not value: return
+        #if not value: return
         for item in value:
             self.catalog.takeItem(self.catalog.row(item))
-    
+        with open('catalog.txt','w+') as stored:
+            for x in range(self.catalog.count()):
+                word = self.catalog.item(x)
+                newtext = str(word.text())
+                stored.write('%s\n'%(newtext))
+                    
     def loadCatalog(self):
         with open('catalog.txt','r') as stored:
             self.catalog.addItems(stored)
+
+    def go_to_webpage(self):
+        value = self.catalog.currentItem()
+        try:
+            text = value.text()
+        except AttributeError:
+            print('Select an item from the catalog to view in your browser!')
+            return
+        website = links.get(text.replace('\n',''))
+        webbrowser.open_new('http://libraryofjuggling.com/%s'%website)
 
 if __name__ == "__main__":
     import sys
