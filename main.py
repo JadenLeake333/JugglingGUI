@@ -6,36 +6,21 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
-from bs4 import BeautifulSoup
+from tricks import listing as lists
 import webbrowser
 import requests
 
 links = {}
 tricks = list()
-htmllinks = list()
+updating_list = list()
 number_of_tricks = 177
 menu_choice = 0
-web = requests.get("http://libraryofjuggling.com/Home.html")
-soup = BeautifulSoup(web.text,"html.parser")
-def loadTricks(soup,web):
-    unwanted_menu = 0
-    counter = 0
-    #Loop through anchor tags in website, limited to 177 to stop from including extraneous links
-    #Starts at 3 for this reason also
-    for names in soup.find_all('a',limit = number_of_tricks):
-        unwanted_menu += 1
-        if(unwanted_menu > 3):
-        #Can use these lists later
-         tricks.append(names.string)
-         htmllinks.append(names.get('href'))
-         links.update({tricks[counter] : htmllinks[counter]})
-         counter += 1
-        else:
-            continue
+alist = lists.tricks_list
+blist = lists.tricks_dict
 
+    
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -78,51 +63,75 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.addTo.setText(_translate("MainWindow", "Add to Catalog"))
         self.goTo.setText(_translate("MainWindow", "View trick in browser"))
         self.removefrom.setText(_translate("MainWindow", "Remove from Catalog"))
+
     def loadList(self):
-        loadTricks(soup,web)
-        for i in range(len(tricks)):
-            self.trickList.addItem(tricks[i])
+        for i in range(len(alist)):
+            self.trickList.addItem(alist[i])
 
     def add_to_catalog(self,item):
         value = self.trickList.currentItem()
         try:
             text = value.text()
         except AttributeError:
-            print('Please select an item to add to the catalog!')
+            popup = QMessageBox()
+            popup.setText('Please select a value to add to the catalog!')
+            popup.exec()
             return
-        self.catalog.addItem(text)
-        with open("catalog.txt","a+") as stored:
-            stored.writelines('%s\n'%text)
+        if text not in updating_list:
+            self.catalog.addItem(text)
+            self.write_to_txt(text)
 
     def remove_from_catalog(self):
         value = self.catalog.selectedItems()
         #if not value: return
         for item in value:
             self.catalog.takeItem(self.catalog.row(item))
+            
         with open('catalog.txt','w+') as stored:
             for x in range(self.catalog.count()):
                 word = self.catalog.item(x)
-                newtext = str(word.text())
-                stored.write('%s\n'%(newtext))
+                text = (str(word.text())) 
+                print(text) 
+                updating_list.remove(text)  
                     
     def loadCatalog(self):
         with open('catalog.txt','r') as stored:
             self.catalog.addItems(stored)
 
+    def load_saved_list(self):
+        with open('catalog.txt','r') as stored:
+            text = stored.readlines()
+            for i in text:
+                updating_list.append(i.replace('\n',''))
+        print(updating_list)
+
+    def write_to_txt(self,text):
+        with open('catalog.txt','a+') as files:
+            files.writelines(text)
+            updating_list.append(text.replace('\n',""))
+            print(updating_list)
+    
+    #def remove_from_txt(self,text):
+
+            
+            
     def go_to_webpage(self):
         value = self.catalog.currentItem()
         try:
             text = value.text()
         except AttributeError:
-            print('Select an item from the catalog to view in your browser!')
+            popup = QMessageBox()
+            popup.setText('Please select an item from the catalog!')
+            popup.exec()
             return
-        website = links.get(text.replace('\n',''))
+        website = blist.get(text.replace('\n',''))
         webbrowser.open_new('http://libraryofjuggling.com/%s'%website)
 
 if __name__ == "__main__":
@@ -132,6 +141,9 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     ui.loadList()
+    ui.load_saved_list()
     ui.loadCatalog()
     MainWindow.show()
     sys.exit(app.exec_())
+   
+                
