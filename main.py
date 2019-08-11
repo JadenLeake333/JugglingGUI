@@ -91,13 +91,18 @@ class Ui_MainWindow(object):
         value = self.trickList.currentItem()
         text = value.text()
         self.catalog.addItem(text)
+        with open("catalog.txt","a+") as stored:
+            stored.writelines('%s\n'%text)
+
     def remove_from_catalog(self):
         value = self.catalog.selectedItems()
         if not value: return
         for item in value:
             self.catalog.takeItem(self.catalog.row(item))
-        
-                
+    
+    def loadCatalog(self):
+        with open('catalog.txt','r') as stored:
+            self.catalog.addItems(stored)
 
 if __name__ == "__main__":
     import sys
@@ -106,5 +111,6 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     ui.loadList()
+    ui.loadCatalog()
     MainWindow.show()
     sys.exit(app.exec_())
