@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtGui import QMovie
 from tricks import listing as lists
 import webbrowser
 import requests
@@ -43,10 +44,13 @@ class Ui_MainWindow(object):
         self.trickList.setGeometry(QtCore.QRect(20, 30, 151, 441))
         self.trickList.setObjectName("trickList")
         self.jugglingGif = QtWidgets.QLabel(self.centralwidget)
-        self.jugglingGif.setGeometry(QtCore.QRect(250, 30, 361, 181))
+        self.jugglingGif.setGeometry(QtCore.QRect(250, 30, 375, 200))
         self.jugglingGif.setFrameShape(QtWidgets.QFrame.Box)
         self.jugglingGif.setText("")
         self.jugglingGif.setObjectName("jugglingGif")
+        self.movie = QMovie('JugglingGIF.GIF')
+        self.jugglingGif.setMovie(self.movie)
+        self.movie.start()
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 635, 21))
