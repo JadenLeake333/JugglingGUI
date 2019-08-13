@@ -10,6 +10,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QMovie
 from tricks import listing as lists
+import os
 import webbrowser
 import requests
 
@@ -25,30 +26,30 @@ blist = lists.tricks_dict
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(635, 514)
+        MainWindow.resize(635, 635)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.addTo = QtWidgets.QPushButton(self.centralwidget)
-        self.addTo.setGeometry(QtCore.QRect(190, 250, 141, 41))
+        self.addTo.setGeometry(QtCore.QRect(195, 390, 141, 41))
         self.addTo.setObjectName("addTo")
         self.removefrom = QtWidgets.QPushButton(self.centralwidget)
-        self.removefrom.setGeometry(QtCore.QRect(190, 310, 141, 41))
+        self.removefrom.setGeometry(QtCore.QRect(195, 460, 141, 41))
         self.removefrom.setObjectName("removefrom")
         self.goTo = QtWidgets.QPushButton(self.centralwidget)
-        self.goTo.setGeometry(QtCore.QRect(190, 370, 141, 41))
+        self.goTo.setGeometry(QtCore.QRect(195, 530, 141, 41))
         self.goTo.setObjectName("goTo")
         self.catalog = QtWidgets.QListWidget(self.centralwidget)
-        self.catalog.setGeometry(QtCore.QRect(350, 250, 261, 221))
+        self.catalog.setGeometry(QtCore.QRect(350, 380, 261, 231))
         self.catalog.setObjectName("catalog")
         self.trickList = QtWidgets.QListWidget(self.centralwidget)
-        self.trickList.setGeometry(QtCore.QRect(20, 30, 151, 441))
+        self.trickList.setGeometry(QtCore.QRect(20, 10, 161, 601))
         self.trickList.setObjectName("trickList")
         self.jugglingGif = QtWidgets.QLabel(self.centralwidget)
-        self.jugglingGif.setGeometry(QtCore.QRect(250, 30, 361, 181))
+        self.jugglingGif.setGeometry(QtCore.QRect(235, 10, 375, 360))
         self.jugglingGif.setFrameShape(QtWidgets.QFrame.Box)
         self.jugglingGif.setText("")
         self.jugglingGif.setObjectName("jugglingGif")
-        self.movie = QMovie('JugglingGIF.GIF')
+        self.movie = QMovie('JugglingGIF.gif')
         self.jugglingGif.setMovie(self.movie)
         self.movie.start()
         MainWindow.setCentralWidget(self.centralwidget)
@@ -120,7 +121,12 @@ class Ui_MainWindow(object):
         with open('catalog.txt','a+') as files:
             files.writelines('%s\n'%text)
             
-            
+    def create_catalog(self):
+        if os.path.exists('catalog.txt'):
+            return
+        else:
+            catalogs = open('catalog.txt','w+')
+            print('created')
  
     def go_to_webpage(self):
         value = self.catalog.currentItem()
@@ -140,6 +146,7 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
+    ui.create_catalog()
     ui.loadList()
     ui.load_saved_list()
     ui.loadCatalog()
