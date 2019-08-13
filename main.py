@@ -44,7 +44,7 @@ class Ui_MainWindow(object):
         self.trickList.setGeometry(QtCore.QRect(20, 30, 151, 441))
         self.trickList.setObjectName("trickList")
         self.jugglingGif = QtWidgets.QLabel(self.centralwidget)
-        self.jugglingGif.setGeometry(QtCore.QRect(250, 30, 375, 200))
+        self.jugglingGif.setGeometry(QtCore.QRect(250, 30, 361, 181))
         self.jugglingGif.setFrameShape(QtWidgets.QFrame.Box)
         self.jugglingGif.setText("")
         self.jugglingGif.setObjectName("jugglingGif")
@@ -108,9 +108,7 @@ class Ui_MainWindow(object):
                 self.write_to_txt(text)    
                   
     def loadCatalog(self):
-        with open('catalog.txt','r') as stored:
-            self.catalog.addItems(stored)
-
+        self.catalog.addItems(updating_list)
     def load_saved_list(self):
         with open('catalog.txt','r') as stored:
             text = stored.readlines()
