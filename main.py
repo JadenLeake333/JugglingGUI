@@ -9,6 +9,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QMovie
+import regex as re
 from tricks import listing as lists
 import os
 import webbrowser
@@ -27,6 +28,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(635, 635)
+        
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.addTo = QtWidgets.QPushButton(self.centralwidget)
@@ -44,6 +46,9 @@ class Ui_MainWindow(object):
         self.trickList = QtWidgets.QListWidget(self.centralwidget)
         self.trickList.setGeometry(QtCore.QRect(20, 10, 161, 601))
         self.trickList.setObjectName("trickList")
+        self.searchBar = QtWidgets.QLineEdit(self.centralwidget)
+        self.searchBar.setGeometry(QtCore.QRect(20, 590, 161, 21))
+        self.searchBar.setObjectName("searchBar")
         self.jugglingGif = QtWidgets.QLabel(self.centralwidget)
         self.jugglingGif.setGeometry(QtCore.QRect(235, 10, 375, 360))
         self.jugglingGif.setFrameShape(QtWidgets.QFrame.Box)
@@ -52,6 +57,7 @@ class Ui_MainWindow(object):
         self.movie = QMovie('JugglingGIF.gif')
         self.jugglingGif.setMovie(self.movie)
         self.movie.start()
+        self.searchBar.textChanged.connect(self.search)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 635, 21))
@@ -64,6 +70,7 @@ class Ui_MainWindow(object):
         self.addTo.clicked.connect(self.add_to_catalog)
         self.removefrom.clicked.connect(self.remove_from_catalog)
         self.goTo.clicked.connect(self.go_to_webpage)
+        
          
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -75,8 +82,16 @@ class Ui_MainWindow(object):
         self.addTo.setText(_translate("MainWindow", "Add to Catalog"))
         self.goTo.setText(_translate("MainWindow", "View trick in browser"))
         self.removefrom.setText(_translate("MainWindow", "Remove from Catalog"))
-
+    def search(self):
+          current_text = self.searchBar.text()
+          self.trickList.clear()
+          for i in alist:
+               if re.search(current_text.upper(),i.upper()):
+                    self.trickList.addItem(i)
+               if current_text == "":
+                    self.loadList()
     def loadList(self):
+        self.trickList.clear()
         for i in range(len(alist)):
             self.trickList.addItem(alist[i])
 
@@ -94,6 +109,7 @@ class Ui_MainWindow(object):
             self.write_to_txt(text)
             updating_list.append(text.replace('\n',""))
 
+    
     def remove_from_catalog(self):
         value = self.catalog.selectedItems()
         #if not value: return
