@@ -18,9 +18,13 @@ import requests
 links = {}
 tricks = list()
 updating_list = list()
+updating_tricklist = list()
 number_of_tricks = 177
 menu_choice = 0
 alist = lists.tricks_list
+alist.sort()
+updating_tricklist = lists.tricks_list
+updating_tricklist.sort()
 blist = lists.tricks_dict
 
     
@@ -82,21 +86,24 @@ class Ui_MainWindow(object):
         self.addTo.setText(_translate("MainWindow", "Add to Catalog"))
         self.goTo.setText(_translate("MainWindow", "View trick in browser"))
         self.removefrom.setText(_translate("MainWindow", "Remove from Catalog"))
+
     def search(self):
           current_text = self.searchBar.text()
           self.trickList.clear()
-          for i in alist:
+          for i in updating_tricklist:
                if re.search(current_text.upper(),i.upper()):
                     self.trickList.addItem(i)
                if current_text == "":
                     self.loadList()
+
     def loadList(self):
+        updating_tricklist.sort()
         self.trickList.clear()
-        for i in range(len(alist)):
-            self.trickList.addItem(alist[i])
+        self.trickList.addItems(updating_tricklist)
 
     def add_to_catalog(self,item):
         value = self.trickList.currentItem()
+        remove = self.trickList.selectedItems()
         try:
             text = value.text()
         except AttributeError:
@@ -108,16 +115,23 @@ class Ui_MainWindow(object):
             self.catalog.addItem(text)
             self.write_to_txt(text)
             updating_list.append(text.replace('\n',""))
-
-    
+            updating_tricklist.remove(text.replace('\n',''))
+        #Removes the selected item from the tricklist while adding it to the catalog
+        for i in remove:
+            self.trickList.takeItem(self.trickList.row(i))
+        self.loadList()
+    #Funtction to remove any items from the catalog#     
     def remove_from_catalog(self):
         value = self.catalog.selectedItems()
         #if not value: return
-        for item in value:
-            self.catalog.takeItem(self.catalog.row(item))
         for items in value:
             updating_list.remove(items.text().replace('\n',''))
+            updating_tricklist.append(items.text().replace('\n',''))
             print(updating_list)
+            print(updating_tricklist)
+        for item in value:
+            self.catalog.takeItem(self.catalog.row(item))
+        self.loadList()
         with open('catalog.txt','w+') as stored:
             for x in range(self.catalog.count()):
                 word = self.catalog.item(x)
@@ -125,13 +139,17 @@ class Ui_MainWindow(object):
                 self.write_to_txt(text)    
                   
     def loadCatalog(self):
+        updating_list.sort()
         self.catalog.addItems(updating_list)
+
     def load_saved_list(self):
         with open('catalog.txt','r') as stored:
             text = stored.readlines()
             for i in text:
                 updating_list.append(i.replace('\n',''))
+                updating_tricklist.remove(i.replace('\n',''))        
         print(updating_list)
+        print(updating_tricklist)
 
     def write_to_txt(self,text):
         with open('catalog.txt','a+') as files:
@@ -145,14 +163,19 @@ class Ui_MainWindow(object):
             print('created')
  
     def go_to_webpage(self):
-        value = self.catalog.currentItem()
+        value = self.trickList.currentItem()
         try:
             text = value.text()
-        except AttributeError:
-            popup = QMessageBox()
-            popup.setText('Please select an item from the catalog!')
-            popup.exec()
-            return
+        except AttributeError as err:
+            if err:
+                try:
+                    value = self.catalog.currentItem()
+                    text = value.text()
+                except AttributeError:
+                    popup = QMessageBox()
+                    popup.setText('Please select an item!')
+                    popup.exec()
+                    return
         website = blist.get(text.replace('\n',''))
         webbrowser.open_new('http://libraryofjuggling.com/%s'%website)
 
@@ -163,8 +186,8 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     ui.create_catalog()
-    ui.loadList()
     ui.load_saved_list()
+    ui.loadList()
     ui.loadCatalog()
     MainWindow.show()
     sys.exit(app.exec_())
